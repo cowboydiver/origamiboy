@@ -1,0 +1,64 @@
+# OS
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+desktop.ini
+
+# Editors / IDEs
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+*.local
+*.pem
+*.key
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output & tool caches (Vite, Next.js, TypeScript, etc.)
+dist/
+dist-ssr/
+build/
+out/
+.next/
+.vite/
+.cache/
+.parcel-cache/
+.turbo/
+*.tsbuildinfo
+.eslintcache
+
+# Testing
+coverage/
+playwright-report/
+test-results/
+
+# Deployment
+.vercel/
+.netlify/
+
+# 3D tooling: Blender backups and temp saves (keep the .blend itself)
+*.blend[0-9]
+*.blend@
+
+# Claude Code local settings
+.claude/settings.local.json
