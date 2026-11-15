@@ -1,0 +1,906 @@
+/* ---------------------------------------------------------------- base -- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--washi);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+h1,
+h2,
+p,
+ol,
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+ol,
+ul {
+  list-style: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+svg {
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+svg .solid {
+  fill: currentColor;
+  stroke-width: 1.2;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.eyebrow__dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--seal);
+}
+
+/* -------------------------------------------------------------- layout -- */
+.app {
+  display: grid;
+  height: 100dvh;
+  grid-template-columns: minmax(0, 1fr) var(--panel-width);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'stage card'
+    'stage steps'
+    'transport steps';
+}
+
+/* --------------------------------------------------------------- stage -- */
+.stage {
+  grid-area: stage;
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  background: radial-gradient(120% 95% at 50% 42%, var(--desk) 25%, var(--desk-deep) 100%);
+}
+
+/* Paper tooth: a little fractal noise multiplied over the page. */
+.stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.36 0 0 0 0 0.31 0 0 0 0 0.25 0.55 0 0 0 -0.12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: var(--grain-blend);
+  opacity: var(--grain-opacity);
+}
+
+.stage__canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: grab;
+  outline-offset: -4px;
+}
+
+.stage__canvas:active {
+  cursor: grabbing;
+}
+
+.stage__canvas[hidden] {
+  display: none;
+}
+
+.masthead {
+  position: absolute;
+  top: var(--pad);
+  left: var(--pad);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  pointer-events: none;
+}
+
+.masthead__mark {
+  width: 30px;
+  height: 30px;
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+
+.masthead__mark-light {
+  fill: var(--sheet);
+}
+
+.masthead__mark-dark {
+  fill: var(--seal);
+}
+
+.masthead__title {
+  font-family: var(--font-display);
+  font-size: 1.1875rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+}
+
+.stage__tools {
+  position: absolute;
+  top: var(--pad);
+  right: var(--pad);
+  z-index: 1;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: 2.25rem;
+  padding: 0 0.85rem 0 0.7rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sheet) 82%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.chip svg {
+  width: 16px;
+  height: 16px;
+}
+
+.chip:hover {
+  background: var(--sheet);
+  border-color: var(--ink-soft);
+}
+
+.legend {
+  position: absolute;
+  left: var(--pad);
+  bottom: var(--pad);
+  z-index: 1;
+  display: grid;
+  gap: 0.3rem;
+  pointer-events: none;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.legend svg {
+  width: 46px;
+  height: 8px;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-linecap: butt;
+}
+
+.stage__hint {
+  position: absolute;
+  right: var(--pad);
+  bottom: var(--pad);
+  z-index: 1;
+  pointer-events: none;
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+  transition: opacity 0.6s;
+}
+
+.stage__hint[data-dismissed] {
+  opacity: 0;
+}
+
+.stage__hint-touch {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .stage__hint-mouse {
+    display: none;
+  }
+
+  .stage__hint-touch {
+    display: inline;
+  }
+}
+
+.stage__error {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding: 3rem;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+.stage__error[hidden] {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- card -- */
+.card {
+  grid-area: card;
+  padding: calc(var(--pad) * 1.35) var(--pad) var(--pad);
+  background: var(--sheet);
+  border-left: 1px solid var(--rule);
+}
+
+.card__title {
+  margin-top: 0.7rem;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 480;
+  font-variation-settings: 'opsz' 72;
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.card__text {
+  margin-top: 0.8rem;
+  max-width: 34ch;
+  min-height: 4.5em;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+/* --------------------------------------------------------------- steps -- */
+.steps {
+  grid-area: steps;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--sheet);
+  border-left: 1px solid var(--rule);
+}
+
+.steps__toggle {
+  display: none;
+}
+
+.steps__heading {
+  padding: 0.9rem var(--pad) 0.6rem;
+  border-top: 1px solid var(--rule);
+}
+
+.steps__list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 calc(var(--pad) - 0.75rem) 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule-strong) transparent;
+}
+
+.step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border-radius: 8px;
+  text-align: left;
+  color: var(--ink-soft);
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.step:hover {
+  background: var(--wash);
+  color: var(--ink);
+}
+
+.step__number,
+.step__duration {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-faint);
+}
+
+.step__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.step[data-state='done'] .step__number {
+  color: var(--ink-soft);
+}
+
+.step[aria-current='step'] {
+  background: var(--wash);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.step[aria-current='step'] .step__number {
+  color: var(--seal);
+  font-weight: 700;
+}
+
+/* Progress through the active step, drawn as a hairline of seal red. */
+.step[aria-current='step']::after {
+  content: '';
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 2px;
+  height: 1.5px;
+  border-radius: 1px;
+  background: var(--seal);
+  transform: scaleX(var(--step-progress, 0));
+  transform-origin: left;
+}
+
+.steps__keys {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.8rem var(--pad) 1rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+}
+
+kbd {
+  display: inline-block;
+  min-width: 1.5em;
+  padding: 0 0.35em;
+  border: 1px solid var(--rule-strong);
+  border-radius: 4px;
+  font-family: var(--font-ui);
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+/* ----------------------------------------------------------- transport -- */
+.transport {
+  grid-area: transport;
+  position: relative;
+  z-index: 2;
+  padding: 0.5rem 0 0.75rem;
+  background: var(--sheet);
+  border-top: 1px solid var(--rule);
+}
+
+.transport__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 1rem;
+  padding: 0.15rem var(--pad) 0;
+}
+
+.transport__buttons,
+.transport__options {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.transport__options {
+  margin-left: auto;
+  gap: 0.6rem;
+}
+
+.transport__time {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.transport__time-total {
+  color: var(--ink-faint);
+}
+
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  color: var(--ink);
+  transition: background-color 0.15s, color 0.15s, transform 0.15s var(--ease);
+}
+
+.icon-button svg {
+  width: 22px;
+  height: 22px;
+}
+
+.icon-button:hover {
+  background: var(--wash);
+}
+
+.icon-button:active {
+  transform: scale(0.94);
+}
+
+.icon-button--primary {
+  width: 3rem;
+  height: 3rem;
+  background: var(--ink);
+  color: var(--sheet);
+}
+
+.icon-button--primary:hover {
+  background: color-mix(in srgb, var(--ink) 86%, var(--seal));
+}
+
+.icon-button--primary .icon-pause,
+.icon-button--primary[data-playing] .icon-play {
+  display: none;
+}
+
+.icon-button--primary[data-playing] .icon-pause {
+  display: block;
+}
+
+.icon-button--toggle {
+  position: relative;
+  color: var(--ink-faint);
+}
+
+.icon-button--toggle[aria-pressed='true'] {
+  color: var(--seal);
+  background: color-mix(in srgb, var(--seal) 12%, transparent);
+}
+
+.segmented {
+  display: flex;
+  padding: 2px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+}
+
+.segmented button {
+  min-width: 2.6rem;
+  height: 1.875rem;
+  padding: 0 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.segmented button:hover {
+  color: var(--ink);
+}
+
+.segmented button[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--sheet);
+}
+
+/* ------------------------------------------------------------ timeline -- */
+.timeline {
+  position: relative;
+  padding: 0 calc(var(--pad) - 10px);
+}
+
+.timeline__track {
+  position: relative;
+  height: 46px;
+  border-radius: 8px;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* The rail is inset so the playhead never hangs over the ends of the track. */
+.timeline__rail {
+  position: absolute;
+  inset: 0 10px;
+}
+
+.timeline__segment {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+/* Tick at the start of every step, plus one closing the rail. */
+.timeline__segment::before,
+.timeline__rail::after {
+  content: '';
+  position: absolute;
+  top: 9px;
+  left: -0.5px;
+  width: 1px;
+  height: 17px;
+  background: var(--rule-strong);
+}
+
+.timeline__rail::after {
+  left: auto;
+  right: -0.5px;
+}
+
+.timeline__bar {
+  position: absolute;
+  top: 15px;
+  left: 2px;
+  right: 2px;
+  height: 5px;
+  border-radius: 2.5px;
+  background: var(--rule);
+  overflow: hidden;
+  transition: background-color 0.15s;
+}
+
+.timeline__segment[data-hover] .timeline__bar {
+  background: var(--rule-strong);
+}
+
+.timeline__fill {
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  transform: scaleX(var(--fill, 0));
+  transform-origin: left;
+}
+
+.timeline__number {
+  position: absolute;
+  top: 27px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-faint);
+}
+
+.timeline__number[hidden] {
+  display: none;
+}
+
+.timeline__segment[data-state='current'] .timeline__number {
+  color: var(--seal);
+  font-weight: 700;
+}
+
+/* The playhead: a little square of red paper standing on its corner. */
+.timeline__playhead {
+  position: absolute;
+  top: 17.5px;
+  left: calc(var(--progress, 0) * 100%);
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.timeline__playhead::before {
+  content: '';
+  position: absolute;
+  top: -11px;
+  left: -1px;
+  width: 2px;
+  height: 22px;
+  border-radius: 1px;
+  background: var(--seal);
+}
+
+.timeline__playhead::after {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--seal);
+  box-shadow: 0 0 0 2px var(--sheet);
+  transform: rotate(45deg);
+  transition: transform 0.15s var(--ease);
+}
+
+.timeline__track[data-dragging] .timeline__playhead::after,
+.timeline__track:focus-visible .timeline__playhead::after {
+  transform: rotate(45deg) scale(1.25);
+}
+
+.timeline__tooltip {
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 0;
+  z-index: 3;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  background: var(--ink);
+  color: var(--sheet);
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.timeline__tooltip[data-visible] {
+  opacity: 1;
+}
+
+.timeline__tooltip b {
+  margin-right: 0.45em;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+/* ------------------------------------------------------ narrow screens -- */
+@media (max-width: 860px) and (orientation: portrait), (max-width: 640px) {
+  .app {
+    height: auto;
+    min-height: 100dvh;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(clamp(15rem, 40dvh, 30rem), 1fr) auto auto auto;
+    grid-template-areas:
+      'stage'
+      'card'
+      'transport'
+      'steps';
+  }
+
+  .masthead__mark {
+    width: 24px;
+    height: 24px;
+  }
+
+  .masthead__title {
+    font-size: 1rem;
+  }
+
+  .chip {
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .chip span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .chip svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .stage__hint {
+    display: none;
+  }
+
+  .legend {
+    font-size: 0.6875rem;
+    gap: 0.15rem;
+  }
+
+  .legend svg {
+    width: 36px;
+  }
+
+  .card,
+  .steps {
+    border-left: 0;
+  }
+
+  /*
+   * The card sits between the 3D view and the transport here, so its height
+   * decides the height of the view. It is fixed at the height of the longest
+   * instruction (--card-height, measured by stepPanel.js; --card-fixed asks for
+   * it), so the view keeps its size from step to step. On a very short screen
+   * the cap wins and a long instruction scrolls inside the card.
+   */
+  .card {
+    --card-fixed: 1;
+    height: min(var(--card-height), 36dvh);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.9rem var(--pad) 0.8rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .card__title {
+    margin-top: 0.4rem;
+    font-size: 1.5rem;
+    font-variation-settings: 'opsz' 48;
+  }
+
+  .card__text {
+    margin-top: 0.4rem;
+    max-width: none;
+    min-height: 2.9em;
+    font-size: 0.875rem;
+    line-height: 1.45;
+  }
+
+  .transport {
+    padding-bottom: 0.6rem;
+  }
+
+  .transport__row {
+    gap: 0.6rem;
+  }
+
+  .transport__options {
+    gap: 0.35rem;
+  }
+
+  .steps {
+    position: relative;
+    z-index: 3;
+    border-top: 1px solid var(--rule);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .steps__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0 var(--pad);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .steps__toggle svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.2s var(--ease);
+  }
+
+  .steps__toggle[aria-expanded='true'] svg {
+    transform: rotate(180deg);
+  }
+
+  .steps__heading,
+  .steps__keys,
+  .steps:not([data-open]) .steps__list {
+    display: none;
+  }
+
+  /* Open, the list is a sheet over the transport and the card: the paper above stays in view. */
+  .steps__list {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    flex: none;
+    max-height: min(44dvh, 26rem);
+    padding-top: 0.5rem;
+    padding-bottom: 0.75rem;
+    background: var(--sheet);
+    border-top: 1px solid var(--rule-strong);
+    box-shadow: 0 -18px 30px -18px rgb(0 0 0 / 0.35);
+    overscroll-behavior: contain;
+  }
+}
+
+@media (max-width: 420px) {
+  .transport__time-total {
+    display: none;
+  }
+
+  .icon-button {
+    width: 2.375rem;
+    height: 2.375rem;
+  }
+
+  .icon-button--primary {
+    width: 2.875rem;
+    height: 2.875rem;
+  }
+
+  .segmented button {
+    min-width: 2.25rem;
+    padding: 0 0.3rem;
+  }
+}
+
+@media (max-width: 345px) {
+  .transport__time {
+    display: none;
+  }
+}
+
+/* Short landscape windows keep the side panel but tighten everything. */
+@media (max-height: 520px) and (min-width: 641px) and (orientation: landscape) {
+  :root {
+    --panel-width: 18rem;
+    --pad: 0.9rem;
+  }
+
+  .card__title {
+    font-size: 1.375rem;
+  }
+
+  .card__text {
+    min-height: 0;
+    font-size: 0.8125rem;
+  }
+
+  .steps__keys,
+  .legend {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

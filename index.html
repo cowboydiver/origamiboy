@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#efe9dc" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1a1816" />
+    <title>Origami folding guide</title>
+    <meta
+      name="description"
+      content="An interactive, step-by-step origami guide. Scrub the timeline to fold the paper and drag to look at it from any side."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M4 26 16 5l12 21z' fill='%23f5f0e4' stroke='%23211e1a' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M16 5v21L4 26z' fill='%23b63f28' stroke='%23211e1a' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <div class="app" id="app">
+      <section class="stage" aria-label="3D view of the model">
+        <header class="masthead">
+          <svg class="masthead__mark" viewBox="0 0 32 32" aria-hidden="true">
+            <path class="masthead__mark-light" d="M4 26 16 5l12 21z" />
+            <path class="masthead__mark-dark" d="M16 5v21H4z" />
+          </svg>
+          <div>
+            <p class="eyebrow">Origami guide</p>
+            <h1 class="masthead__title" data-model-name>&nbsp;</h1>
+          </div>
+        </header>
+
+        <canvas
+          class="stage__canvas"
+          id="view"
+          role="img"
+          aria-label="The paper, shown in 3D at the current point of the folding sequence. Drag to rotate it, scroll or pinch to zoom; on a keyboard, A and D turn it, W and S tilt it, plus and minus zoom."
+        ></canvas>
+
+        <div class="stage__tools">
+          <button type="button" class="chip" data-action="reset-view" title="Reset view (R)">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4.5 12a7.5 7.5 0 1 0 2.4-5.5" />
+              <path d="M4.5 4.5v4h4" />
+            </svg>
+            <span>Reset view</span>
+          </button>
+        </div>
+
+        <ul class="legend" aria-label="Line key">
+          <li>
+            <svg viewBox="0 0 46 8" aria-hidden="true"><path d="M1 4h44" stroke-dasharray="8 5" /></svg>
+            Valley fold
+          </li>
+          <li>
+            <svg viewBox="0 0 46 8" aria-hidden="true"><path d="M1 4h44" stroke-dasharray="11 4 1.5 4" /></svg>
+            Mountain fold
+          </li>
+        </ul>
+
+        <p class="stage__hint" data-hint aria-hidden="true">
+          <span class="stage__hint-mouse">Drag to rotate · scroll to zoom</span>
+          <span class="stage__hint-touch">Drag to rotate · pinch to zoom</span>
+        </p>
+
+        <p class="stage__error" data-stage-error hidden>
+          This device could not start WebGL, so the 3D view is unavailable. The written steps still work.
+        </p>
+      </section>
+
+      <section class="card" data-step-card aria-label="Current step" aria-live="polite" aria-atomic="true">
+        <p class="eyebrow">
+          <span data-step-count>Step 1</span>
+          <span class="eyebrow__dot" aria-hidden="true"></span>
+          <span data-step-kind></span>
+        </p>
+        <h2 class="card__title" data-step-title>&nbsp;</h2>
+        <p class="card__text" data-step-description></p>
+      </section>
+
+      <section class="transport" aria-label="Playback">
+        <div class="timeline" data-timeline></div>
+
+        <div class="transport__row">
+          <div class="transport__buttons">
+            <button type="button" class="icon-button" data-action="previous" aria-label="Previous step" title="Previous step (Left arrow)">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path class="solid" d="M18 6.2v11.6L9 12z" /><path d="M6.5 6.5v11" /></svg>
+            </button>
+            <button type="button" class="icon-button icon-button--primary" data-action="play" aria-label="Play" title="Play or pause (Space)">
+              <svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path class="solid" d="M8.5 5.5v13l10.5-6.5z" /></svg>
+              <svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path class="solid" d="M7.5 5.5h3v13h-3zM13.5 5.5h3v13h-3z" /></svg>
+            </button>
+            <button type="button" class="icon-button" data-action="next" aria-label="Next step" title="Next step (Right arrow)">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path class="solid" d="M6 6.2v11.6l9-5.8z" /><path d="M17.5 6.5v11" /></svg>
+            </button>
+          </div>
+
+          <p class="transport__time" aria-label="Elapsed time">
+            <span data-time-now>0:00</span><span class="transport__time-total"> / <span data-time-total>0:00</span></span>
+          </p>
+
+          <div class="transport__options">
+            <div class="segmented" role="group" aria-label="Playback speed">
+              <button type="button" data-speed="0.5" aria-pressed="false" aria-label="Half speed">0.5×</button>
+              <button type="button" data-speed="1" aria-pressed="true" aria-label="Normal speed">1×</button>
+              <button type="button" data-speed="2" aria-pressed="false" aria-label="Double speed">2×</button>
+            </div>
+            <button type="button" class="icon-button icon-button--toggle" data-action="loop" aria-pressed="false" aria-label="Loop" title="Loop (L)">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M17 3.5 20.5 7 17 10.5" />
+                <path d="M20.5 7H8a4.5 4.5 0 0 0-4.5 4.5v.5" />
+                <path d="M7 20.5 3.5 17 7 13.5" />
+                <path d="M3.5 17H16a4.5 4.5 0 0 0 4.5-4.5V12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <nav class="steps" aria-label="All steps" data-steps>
+        <button type="button" class="steps__toggle" data-steps-toggle aria-expanded="false" aria-controls="step-list">
+          <span>All steps</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5" /></svg>
+        </button>
+        <p class="steps__heading eyebrow" aria-hidden="true">All steps</p>
+        <ol class="steps__list" id="step-list" data-step-list></ol>
+        <p class="steps__keys" aria-hidden="true">
+          <span><kbd>Space</kbd> play · <kbd>←</kbd> <kbd>→</kbd> step · <kbd>Shift</kbd> + <kbd>←</kbd> <kbd>→</kbd> scrub</span>
+          <span><kbd>A</kbd> <kbd>D</kbd> <kbd>W</kbd> <kbd>S</kbd> turn · <kbd>+</kbd> <kbd>−</kbd> zoom · <kbd>R</kbd> reset view</span>
+        </p>
+      </nav>
+    </div>
+
+    <noscript>This guide needs JavaScript to fold the paper.</noscript>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
