@@ -1,0 +1,58 @@
+/*
+ * Design tokens: paper and ink.
+ *
+ * Two surfaces (the washi page and the slightly brighter sheet used for
+ * panels), three strengths of ink, hairline rules, and one accent: the
+ * vermilion of a seal, which is also the colour of the paper's coloured side.
+ */
+:root {
+  color-scheme: light dark;
+
+  --font-display: 'Fraunces Variable', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --font-ui: 'Avenir Next', 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+
+  --washi: #efe9dc;
+  --desk: #e8e1d1;
+  --desk-deep: #d8cfbc;
+  --sheet: #f6f2e8;
+  --ink: #211e1a;
+  --ink-soft: #564f46;
+  --ink-faint: #746d62;
+  --rule: rgb(33 30 26 / 0.13);
+  --rule-strong: rgb(33 30 26 / 0.32);
+  --wash: rgb(33 30 26 / 0.06);
+  --seal: #b23c26;
+  --focus: #1c5d8c;
+  --grain-blend: multiply;
+  --grain-opacity: 0.5;
+
+  --panel-width: 23.5rem;
+  --pad: 1.5rem;
+  --ease: cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --washi: #1b1917;
+    --desk: #1d1b18;
+    --desk-deep: #121110;
+    --sheet: #22201c;
+    --ink: #ece6d9;
+    --ink-soft: #b9b1a2;
+    --ink-faint: #958d7f;
+    --rule: rgb(236 230 217 / 0.12);
+    --rule-strong: rgb(236 230 217 / 0.34);
+    --wash: rgb(236 230 217 / 0.07);
+    --seal: #e56a4d;
+    --focus: #8cc4ec;
+    --grain-blend: soft-light;
+    --grain-opacity: 0.35;
+  }
+}
+
+@media (max-width: 860px) {
+  :root {
+    --pad: 1rem;
+  }
+}
